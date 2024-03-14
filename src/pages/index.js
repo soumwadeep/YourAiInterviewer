@@ -159,7 +159,7 @@ export default function Home() {
           content="Have A Mock Interview With AI To Get Suggestions."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/logo.png"></link>
+        <link rel="icon" type="image/png" href="./logo.png"></link>
       </Head>
       <main className={styles.main}>
         <h1 style={{ textAlign: "center" }}>Welcome To AI Interviewer</h1>
