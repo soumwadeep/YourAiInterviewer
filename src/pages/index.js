@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import React, { useState, useEffect, useRef } from "react";
-import Console from "src/components/Console";
+import Console from "@/components/Console";
 
 const MediaStreamWrapper = ({ children }) => {
   const [userMediaStream, setUserMediaStream] = useState(null);

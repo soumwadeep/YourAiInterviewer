@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import Toolbar from "src/components/Toolbar/Toolbar";
+import Toolbar from "./Toolbar/Toolbar";
 import styles from "@/styles/Console.module.css";
-import Prompt from "src/components/Dropdown/Prompt";
+import Prompt from "./Dropdown/Prompt";
 
 function Console({
   textInput: textInput,
