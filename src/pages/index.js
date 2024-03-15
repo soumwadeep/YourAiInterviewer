@@ -121,9 +121,15 @@ export default function Home() {
       <main className={styles.main}>
         <h1 style={{ textAlign: "center" }}>Welcome To AI Interviewer</h1>
         <br />
-        <div className={styles.description}>
+        <div
+          className={styles.description}
+          style={{ display: "flex", alignItems: "flex-start" }}
+        >
           {/* Render the video icon */}
-          <div onClick={toggleCamera} style={{ cursor: "pointer" }}>
+          <div
+            onClick={toggleCamera}
+            style={{ cursor: "pointer", marginRight: "20px" }}
+          >
             <FaVideo size={30} />
           </div>
           {/* Conditional rendering of camera view */}
@@ -140,7 +146,7 @@ export default function Home() {
                     }
                   }}
                   autoPlay
-                  style={{ width: "100%", height: "auto" }}
+                  style={{ width: "auto", height: "50vh" }}
                 />
               )}
             </MediaStreamWrapper>
@@ -148,7 +154,7 @@ export default function Home() {
           {/* Chat window */}
           <MediaStreamWrapper>
             {({ userMediaStream, setUserMediaStream }) => (
-              <div className={styles.chatWindow}>
+              <div className={styles.chatWindow} style={{ flex: 1 }}>
                 <Console
                   selectedPrompt={selectedPrompt}
                   rerender={rerender}
@@ -166,7 +172,7 @@ export default function Home() {
                   playQueue={playQueue}
                   setPlayQueue={setPlayQueue}
                   audioRefs={audioRefs}
-                  userMediaStream={userMediaStream} // Now userMediaStream is accessible here
+                  userMediaStream={userMediaStream}
                   currentSession={currentSession}
                   promptOpen={promptOpen}
                   setPromptOpen={setPromptOpen}
