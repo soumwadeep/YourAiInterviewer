@@ -1,6 +1,7 @@
 import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import React, { useState, useEffect, useRef } from "react";
+import { FaVideo } from "react-icons/fa";
 import Console from "@/components/Console";
 
 const MediaStreamWrapper = ({ children }) => {
@@ -9,7 +10,10 @@ const MediaStreamWrapper = ({ children }) => {
   useEffect(() => {
     // Initialize getUserMedia on component mount
     const initMediaStream = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
 
       setUserMediaStream(stream);
     };
@@ -28,63 +32,29 @@ export default function Home() {
     };
   }
 
-  // textInput is the text input by the user in the console text input field
+  const [showCamera, setShowCamera] = useState(false); // State to toggle camera view
   const [textInput, setTextInput] = useState("");
-
-  // audioRefs is an array of refs to the audio elements that are used to play audio samples, it's filled with nulls to prevent errors
   const audioRefs = useRef(Array(512).fill(null));
-
-  // sessionMessages is an array of objects that contain the messages that are displayed in the console and sent to the chatGPT API
   const sessionMessages = useRef([introduction()]);
-
-  // detecitonSettings is an object that contains the settings for the detection of the user's voice. activityDetection is a boolean that is true if the user has the setting enabled. activityDetectionThreshold is a number that is the threshold for the detection of the user's voice
   const detectionSettings = useRef({
     activityDetection: true,
     activityDetectionThreshold: 10,
   });
-
-  // promptOpen determines whether the prompt edit box is open
   const [promptOpen, setPromptOpen] = useState(false);
-
-  // activityDetection stores state for the microphone & it's associated color change, 0 = no activity, 1 = ready to record, 2- = recording, 4 - disabled
   const [activityDetection, setActivityDetection] = useState(0);
-
-  // This goes in the input field for user to type in their job description
+  const [playQueue, setPlayQueue] = useState([]);
+  const [currentAIAudio, setCurrentAIAudio] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
+  const currentSession = useRef(null);
+  const micQuiet = useRef(3000);
+  const [rerender, setRerender] = useState(0);
+  const selectedPrompt = useRef("");
   const [preprocessedJobDescription, setPreprocessedJobDescription] =
     useState("");
-
-  // playQueue controls playing audio samples
-  const [playQueue, setPlayQueue] = useState([]);
-
-  // Used for detection of the last audio sample produced by AI, removed when it finishes playing
-  const [currentAIAudio, setCurrentAIAudio] = useState(null);
-
-  const [currentAudio, setCurrentAudio] = useState(null);
-
-  // currentSession is a ref to the current session, used to stop the session when the user abandons it
-  const currentSession = useRef(null);
-
-  // micQuiet is the delay in milliseconds before the microphone is considered to be quiet
-  const micQuiet = useRef(3000);
-
-  // basic rerender state, used to force rerendering of components
-  const [rerender, setRerender] = useState(0);
-
-  // This is a stored prompt that is used to generate new sessions
-  const selectedPrompt = useRef("");
-
   const interviewSettings = useRef({
     personalityOptions: [
-      {
-        label: "Friendly",
-        value: "friendly and warm",
-        enabled: true,
-      },
-      {
-        label: "Formal",
-        value: "formal and professional",
-        enabled: false,
-      },
+      { label: "Friendly", value: "friendly and warm", enabled: true },
+      { label: "Formal", value: "formal and professional", enabled: false },
       {
         label: "Challenging",
         value: "challenging and engaging",
@@ -102,36 +72,23 @@ export default function Home() {
       },
     ],
     questionTypes: [
-      {
-        label: "Behavioral",
-        value: "behavioral",
-        enabled: true,
-      },
-      {
-        label: "Technical",
-        value: "technical",
-        enabled: true,
-      },
-      {
-        label: "Culture Fit",
-        value: "culture",
-        enabled: true,
-      },
-      {
-        label: "Situational",
-        value: "situational",
-        enabled: true,
-      },
+      { label: "Behavioral", value: "behavioral", enabled: true },
+      { label: "Technical", value: "technical", enabled: true },
+      { label: "Culture Fit", value: "culture", enabled: true },
+      { label: "Situational", value: "situational", enabled: true },
     ],
     feedback: true,
   });
+
+  const toggleCamera = () => {
+    setShowCamera((prev) => !prev); // Toggle the camera view
+  };
 
   function resetPlaceholderPrompt() {
     sessionMessages.current = [
       {
         role: "welcome",
         content: "",
-        //  + placeholder,
       },
     ];
     setRerender(rerender + 1);
@@ -165,9 +122,33 @@ export default function Home() {
         <h1 style={{ textAlign: "center" }}>Welcome To AI Interviewer</h1>
         <br />
         <div className={styles.description}>
+          {/* Render the video icon */}
+          <div onClick={toggleCamera} style={{ cursor: "pointer" }}>
+            <FaVideo size={30} />
+          </div>
+          {/* Conditional rendering of camera view */}
+          {showCamera && (
+            <MediaStreamWrapper>
+              {({ userMediaStream, setUserMediaStream }) => (
+                <video
+                  ref={(video) => {
+                    if (video && userMediaStream) {
+                      video.srcObject = userMediaStream;
+                      video.onloadedmetadata = () => {
+                        video.play();
+                      };
+                    }
+                  }}
+                  autoPlay
+                  style={{ width: "100%", height: "auto" }}
+                />
+              )}
+            </MediaStreamWrapper>
+          )}
+          {/* Chat window */}
           <MediaStreamWrapper>
             {({ userMediaStream, setUserMediaStream }) => (
-              <>
+              <div className={styles.chatWindow}>
                 <Console
                   selectedPrompt={selectedPrompt}
                   rerender={rerender}
@@ -185,7 +166,7 @@ export default function Home() {
                   playQueue={playQueue}
                   setPlayQueue={setPlayQueue}
                   audioRefs={audioRefs}
-                  userMediaStream={userMediaStream}
+                  userMediaStream={userMediaStream} // Now userMediaStream is accessible here
                   currentSession={currentSession}
                   promptOpen={promptOpen}
                   setPromptOpen={setPromptOpen}
@@ -194,8 +175,8 @@ export default function Home() {
                   preprocessedJobDescription={preprocessedJobDescription}
                   setPreprocessedJobDescription={setPreprocessedJobDescription}
                   interviewSettings={interviewSettings}
-                ></Console>
-              </>
+                />
+              </div>
             )}
           </MediaStreamWrapper>
         </div>
