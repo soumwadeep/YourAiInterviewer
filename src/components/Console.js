@@ -200,7 +200,7 @@ function Console({
     }
 
     // Recorder holds and processes state for the record requests
-     const recorderInstance = () => {
+    const recorderInstance = () => {
       let currentRecording = null;
 
       function record() {
@@ -209,17 +209,17 @@ function Console({
           return;
         }
         setActivityDetection(1);
-        if(currentRecording != null){
+        if (currentRecording != null) {
           clear();
         }
         currentRecording = collectAudio();
       }
 
       function clear() {
-        if(currentRecording != null){
+        if (currentRecording != null) {
           currentRecording.cancel();
-        currentRecording = null;
-      }
+          currentRecording = null;
+        }
       }
 
       return {
@@ -531,8 +531,8 @@ function Console({
                     <br></br>
                     <ul>
                       <li>
-                        1. Choose your interviewer settings (voice,
-                        personality). <i>optional</i>
+                        1. Choose your interviewer settings (voice, personality)
+                        by clicking the hamburger item and uncheck automatic detection for easy process. <i>optional</i>
                       </li>
                       <li>
                         2. Paste the job description in the prompt menu.{" "}
